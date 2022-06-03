@@ -1,24 +1,20 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import useMetamask from './connector/metamask';
+import metamaskFox from './metamask-fox.png';
 
 function App() {
+
+  const { connectToMetamask } = useMetamask();
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <button onClick={() => connectToMetamask()} className="MetamaskButton">
+        <div className="MetamaskButtonContent">
+          Connect To Metamask 
+         <img src={metamaskFox} alt="Metamask Fox" className="MetamaskLogo"/>
+        </div>
+      </button>
     </div>
   );
 }
