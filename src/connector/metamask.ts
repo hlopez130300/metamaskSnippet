@@ -1,35 +1,55 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 
 const useMetamask = () => {
 
-  const [connected, setConnected] = useState<undefined | string>();
-  const [walletAdress, setWalletAddress] = useState();
-  const [provider, setProvider] = useState(null);
+  interface Network {
+    chainId: number,
+    name: string,
+    ensAddress: string
+  };
+
+  const [connected, setConnected] = useState<null |'failed' | 'pending' | 'success'>(null);
+  const [walletAddress, setWalletAddress] = useState<null | string>(null);
+  const [provider, setProvider] = useState<null | ethers.providers.JsonRpcProvider>(null);
+  const [network, setNetwork] = useState<null | Network>(null);
+  const [balance, setBalance] = useState<null | string>(null);
+
+  useEffect(() => {
+    (
+      async() => {
+        if(provider && walletAddress) {
+          const balance = await (window as any).provider.getBalance(walletAddress);
+          const balanceInEth = ethers.utils.formatEther(balance);
+          setBalance(balanceInEth)
+        }
+      }
+    )();
+  }, [provider, walletAddress, network]);
 
   // public
   const connectToMetamask = async() => {
-    setConnected('pending');
+    initState();
     const provider = await detectCurrentProvider();
-  
     if (!provider) {
       setConnected('failed');
+      return;
     }
-    const { address, status } = await getWalletAddress();
-    if (status === 'connected') {
-      setWalletAddress(address[0]);
-    }
+
+    await getWalletAddress();
+    await getNetwork();
+
+    changeNetworkListener();
+    changeAccountListener();
+
     setProvider(provider);
     setConnected('success');
   }
 
-  const getNetwork = async() => {
-    if ((window as any).provider) {
-      await getChainId();
-    } else {
-      await connectToMetamask();
-      await getChainId();
-    }
+  const initState = () => {
+    setNetwork(null);
+    setWalletAddress(null);
+    setConnected('pending');
   }
 
   // private
@@ -38,14 +58,15 @@ const useMetamask = () => {
     if (window) {
       if ((window as any).ethereum) {
         provider = new ethers.providers.Web3Provider(
-          (window as any).ethereum
+          (window as any).ethereum,
+          'any'
         );
       } 
       else if ((window as any).web3) {
         provider = (window as any).web3.currentProvider;
       } 
       else {
-        console.log(
+        console.warn(
           'Non-Ethereum browser detected. You should consider trying MetaMask!'
         );
       }
@@ -54,29 +75,35 @@ const useMetamask = () => {
     return provider;
   };
 
-  const getWalletAddress = async() => {
-    let address, status;
-    if ((window as any).ethereum) {
-      address = await (window as any).ethereum.request({method: 'eth_requestAccounts'});
-      if (!address) await connectToMetamask();
-      status = 'connected';
-    } else {
-      status = 'failed';
-    }
-    return { address, status };
+  const changeNetworkListener = () => {
+    (window as any).ethereum.on('chainChanged', async function () {
+      await getNetwork();
+    });
+  };
+
+  const changeAccountListener = () => {
+    (window as any).ethereum.on('accountsChanged', async function () {
+      await getWalletAddress();
+    })
   }
 
-  const getChainId = async() => {
-    const { chainId, name } = await (window as any).provider.getNetwork();
-    return { chainId, name };
+  const getNetwork = async() => {
+    const currentNetwork = await (window as any).provider.getNetwork();
+    setNetwork(currentNetwork);
+  }
+
+  const getWalletAddress = async() => {
+    const address = await (window as any).ethereum.request({method: 'eth_requestAccounts'});
+    setWalletAddress(address[0]);
   }
 
   return {
     connected,
-    walletAdress,
+    walletAddress,
     provider,
+    network,
     connectToMetamask,
-    getNetwork
+    balance
   }
 }
 

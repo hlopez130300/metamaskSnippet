@@ -5,10 +5,15 @@ import metamaskFox from './metamask-fox.png';
 
 function App() {
 
-  const { connectToMetamask } = useMetamask();
+  const { connectToMetamask, connected, walletAddress, network, balance } = useMetamask();
 
   return (
     <div className="App">
+      <p>Connected: {connected}</p>
+      <p>Wallet Address: {walletAddress}</p>
+      <p>Network Id: {network?.chainId}</p>
+      <p>Network Name: {network?.name}</p>
+      <p>Balance: {balance}</p>
       <button onClick={() => connectToMetamask()} className="MetamaskButton">
         <div className="MetamaskButtonContent">
           Connect To Metamask 
