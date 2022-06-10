@@ -1,11 +1,12 @@
 import React from 'react';
 import './App.css';
-import useMetamask from './connector/metamask';
+import useMetamask from './hooks/useMetamask';
+import useMetamaskRedux from './hooks/useMetamaskRedux';
 import metamaskFox from './metamask-fox.png';
 
 function App() {
 
-  const { connectToMetamask, connected, walletAddress, network, balance } = useMetamask();
+  const { connectToMetamask, connected, walletAddress, network, balance } = useMetamaskRedux();
 
   return (
     <div className="App">
