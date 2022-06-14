@@ -21,7 +21,7 @@ const useMetamask = () => {
         if(provider && walletAddress) {
           const balance = await (window as any).provider.getBalance(walletAddress);
           const balanceInEth = ethers.utils.formatEther(balance);
-          setBalance(balanceInEth)
+          setBalance(balanceInEth);
         }
       }
     )();
@@ -64,7 +64,7 @@ const useMetamask = () => {
       } 
       else if ((window as any).web3) {
         provider = (window as any).web3.currentProvider;
-      } 
+      }
       else {
         console.warn(
           'Non-Ethereum browser detected. You should consider trying MetaMask!'

@@ -34,7 +34,6 @@ export const metamaskSlice = createSlice({
       state.connected = 'pending';
     },
     successConnection: (state, action: PayloadAction<any>) => {
-      console.log('action dispatched');
       const { connected, walletAddress, network } = action.payload;
       state.connected = connected;
       state.walletAddress = walletAddress;
