@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ethers } from 'ethers';
 
 interface Network {
   chainId: number,
@@ -11,6 +10,11 @@ interface MetamaskState {
   walletAddress: null | string;
   network: null | Network;
   balance: null | string;
+}
+
+interface setConnection {
+  walletAddress: string;
+  network: Network;
 }
 
 const initialState: MetamaskState = {
@@ -33,9 +37,9 @@ export const metamaskSlice = createSlice({
     pendingConnection: (state) => {
       state.connected = 'pending';
     },
-    successConnection: (state, action: PayloadAction<any>) => {
-      const { connected, walletAddress, network } = action.payload;
-      state.connected = connected;
+    successConnection: (state, action: PayloadAction<setConnection>) => {
+      const { walletAddress, network } = action.payload;
+      state.connected = 'success';
       state.walletAddress = walletAddress;
       state.network = network;
     },

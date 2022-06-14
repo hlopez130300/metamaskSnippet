@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import { useAppSelector, useAppDispatch } from '../app/store';
 import { 
   resetConnection, 
+  pendingConnection,
   successConnection, 
   failedConnection, 
   changeNetwork, 
@@ -34,6 +35,7 @@ const useMetamaskRedux = () => {
   // public
   const connectToMetamask = async() => {
     dispatch(resetConnection());
+    dispatch(pendingConnection());
     const provider = await detectCurrentProvider();
     if (!provider) {
       dispatch(failedConnection())
@@ -48,10 +50,8 @@ const useMetamaskRedux = () => {
 
     setProvider(provider);
     dispatch(successConnection({ 
-      connected: 'success',
       walletAddress: address,
-      network: network,
-      balance: balance
+      network: network
     }));
   }
 
